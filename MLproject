@@ -4,7 +4,7 @@ conda_env: argo-workflows/conda_env.yaml
 
 entry_points:
   main:
-    command: "python create_parent_run.py"
+    command: "python mlflow-project/create_parent_run.py"
   preprocess:
     parameters:
       parent_run_id: {type: str}
