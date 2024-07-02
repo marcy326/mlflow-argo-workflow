@@ -1,13 +1,23 @@
 name: mlflow-argo
 
-conda_env: mlflow-project/conda.yaml
+conda_env: conda.yaml
 
 entry_points:
+  main:
+    command: "python create_parent_run.py"
   preprocess:
-    command: "python mlflow-project/preprocess/preprocess.py"
+    parameters:
+      parent_run_id: {type: str}
+    command: "python mlflow-project/preprocess.py --parent_run_id {parent_run_id}"
   train:
-    command: "python mlflow-project/train/train.py"
+    parameters:
+      parent_run_id: {type: str}
+    command: "python mlflow-project/train.py --parent_run_id {parent_run_id}"
   evaluate:
-    command: "python mlflow-project/evaluate/evaluate.py"
+    parameters:
+      parent_run_id: {type: str}
+    command: "python mlflow-project/evaluate.py --parent_run_id {parent_run_id}"
   deploy:
-    command: "python mlflow-project/deploy/deploy.py"
+    parameters:
+      parent_run_id: {type: str}
+    command: "python mlflow-project/deploy.py --parent_run_id {parent_run_id}"

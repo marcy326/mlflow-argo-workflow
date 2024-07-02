@@ -12,41 +12,44 @@ spec:
             template: mlflow
             arguments:
               parameters:
-                - name: project
-                  value: /mnt/mlflow-project/preprocess
+                - name: entry_point
+                  value: preprocess
           - name: train
             template: mlflow
             arguments:
               parameters:
-                - name: project
-                  value: /mnt/mlflow-project/train
+                - name: entry_point
+                  value: train
             dependencies: [preprocess]
           - name: evaluate
             template: mlflow
             arguments:
               parameters:
-                - name: project
-                  value: /mnt/mlflow-project/evaluate
+                - name: entry_point
+                  value: evaluate
             dependencies: [train]
           - name: deploy
             template: mlflow
             arguments:
               parameters:
-                - name: project
-                  value: /mnt/mlflow-project/deploy
+                - name: entry_point
+                  value: deploy
             dependencies: [evaluate]
 
     - name: mlflow
       inputs:
         parameters:
-          - name: project
+          - name: entry_point
       container:
         image: marcy326/mlflow-conda:py3.11
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run"]
-        args: ["{{inputs.parameters.project}}"]
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
+        args: ["--entry-point", "{{inputs.parameters.entry_point}}"]
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project
+        env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://mlflow.mlflow:5000"
       volumes:
         - name: mlflow-project
           persistentVolumeClaim:

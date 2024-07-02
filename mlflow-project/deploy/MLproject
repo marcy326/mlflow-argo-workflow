@@ -1,7 +1,0 @@
-name: Deploy
-
-conda_env: ../conda.yaml
-
-entry_points:
-  main:
-    command: "python deploy.py"
