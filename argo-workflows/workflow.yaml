@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: mlflow-workflow-
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: preprocess
+            template: mlflow
+            arguments:
+              parameters:
+                - name: project
+                  value: /mnt/mlflow-project/preprocess
+          - name: train
+            template: mlflow
+            arguments:
+              parameters:
+                - name: project
+                  value: /mnt/mlflow-project/train
+            dependencies: [preprocess]
+          - name: evaluate
+            template: mlflow
+            arguments:
+              parameters:
+                - name: project
+                  value: /mnt/mlflow-project/evaluate
+            dependencies: [train]
+          - name: deploy
+            template: mlflow
+            arguments:
+              parameters:
+                - name: project
+                  value: /mnt/mlflow-project/deploy
+            dependencies: [evaluate]
+
+    - name: mlflow
+      inputs:
+        parameters:
+          - name: project
+      container:
+        image: marcy326/mlflow-conda:py3.11
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run"]
+        args: ["{{inputs.parameters.project}}"]
+        volumeMounts:
+          - name: mlflow-project
+            mountPath: /mnt/mlflow-project
+      volumes:
+        - name: mlflow-project
+          persistentVolumeClaim:
+            claimName: mlflow-project-pvc
