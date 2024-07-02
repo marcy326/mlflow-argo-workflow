@@ -54,7 +54,8 @@ spec:
     - name: create-parent-run
       script:
         image: marcy326/mlflow-conda:py3.11
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git", "--entry-point", "main"]
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env",
+                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git", "--entry-point", "main", "--env-manager", "local"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
@@ -79,7 +80,7 @@ spec:
       container:
         image: marcy326/mlflow-conda:py3.11
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "-P", "parent_run_id={{inputs.parameters.parent_run_id}}"]
+        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "-P", "parent_run_id={{inputs.parameters.parent_run_id}}", "--env-manager", "local"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"

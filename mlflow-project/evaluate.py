@@ -1,11 +1,22 @@
-import mlflow
 import argparse
+import pandas as pd
+from sklearn.metrics import accuracy_score
+import mlflow
+import mlflow.sklearn
 
 def main(parent_run_id):
-    with mlflow.start_run(run_id=parent_run_id, nested=True):
-        mlflow.log_param("evaluate", "done")
-        # 前処理のロジックをここに記述します
-        print("Evaluation done")
+    with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
+        # データの読み込み
+        X_test = pd.read_csv("/mnt/mlflow-project/data/X_test.csv")
+        y_test = pd.read_csv("/mnt/mlflow-project/data/y_test.csv")
+
+        # モデルの読み込み
+        model = mlflow.sklearn.load_model(f"runs:/{parent_run_id}/random_forest_model")
+
+        # モデルの評価
+        predictions = model.predict(X_test)
+        accuracy = accuracy_score(y_test, predictions)
+        mlflow.log_metric("accuracy", accuracy)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

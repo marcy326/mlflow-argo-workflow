@@ -1,11 +1,15 @@
-import mlflow
 import argparse
+import mlflow
+import mlflow.sklearn
+import joblib
 
 def main(parent_run_id):
-    with mlflow.start_run(run_id=parent_run_id, nested=True):
-        mlflow.log_param("deploy", "done")
-        # 前処理のロジックをここに記述します
-        print("Deployment done")
+    with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
+        # モデルの読み込み
+        model = mlflow.sklearn.load_model(f"runs:/{parent_run_id}/random_forest_model")
+        
+        # モデルの保存
+        joblib.dump(model, "/mnt/mlflow-project/model/random_forest_model.pkl")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
