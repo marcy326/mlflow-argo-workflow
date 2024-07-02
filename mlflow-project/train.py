@@ -7,8 +7,9 @@ import mlflow.sklearn
 def main(parent_run_id):
     with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
         # データの読み込み
-        X_train = pd.read_csv("/mnt/mlflow-project/data/X_train.csv")
-        y_train = pd.read_csv("/mnt/mlflow-project/data/y_train.csv")
+        mlflow.artifacts.download_artifacts(run_id=parent_run_id)
+        X_train = pd.read_csv("X_train.csv")
+        y_train = pd.read_csv("y_train.csv")
 
         # モデルの学習
         model = RandomForestClassifier(n_estimators=100, random_state=42)
