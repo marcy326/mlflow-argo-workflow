@@ -1,0 +1,13 @@
+name: mlflow-argo
+
+conda_env: mlflow-project/conda.yaml
+
+entry_points:
+  preprocess:
+    command: "python mlflow-project/preprocess/preprocess.py"
+  train:
+    command: "python mlflow-project/train/train.py"
+  evaluate:
+    command: "python mlflow-project/evaluate/evaluate.py"
+  deploy:
+    command: "python mlflow-project/deploy/deploy.py"
