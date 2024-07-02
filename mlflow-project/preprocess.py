@@ -3,7 +3,7 @@ import argparse
 
 def main(parent_run_id):
     with mlflow.start_run(run_id=parent_run_id, nested=True):
-        mlflow.log_param("step", "preprocessed")
+        mlflow.log_param("preprocess", "done")
         # 前処理のロジックをここに記述します
         print("Preprocessing done")
 

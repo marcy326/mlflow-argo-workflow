@@ -55,6 +55,9 @@ spec:
       script:
         image: marcy326/mlflow-conda:py3.11
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git", "--entry-point", "main"]
+        env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://mlflow.mlflow:5000"
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project
@@ -77,6 +80,9 @@ spec:
         image: marcy326/mlflow-conda:py3.11
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
         args: ["--entry-point", "{{inputs.parameters.entry_point}}", "-P", "parent_run_id={{inputs.parameters.parent_run_id}}"]
+        env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://mlflow.mlflow:5000"
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project
