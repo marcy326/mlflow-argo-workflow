@@ -10,11 +10,6 @@ spec:
         tasks:
           - name: create-parent-run
             template: create-parent-run
-            outputs:
-              parameters:
-                - name: parent-run-id
-                  valueFrom:
-                    path: /tmp/parent_run_id.txt
 
           - name: preprocess
             template: mlflow
@@ -33,7 +28,7 @@ spec:
                 - name: entry_point
                   value: train
                 - name: parent_run_id
-                  value: "{{tasks.preprocess.outputs.parameters.parent_run_id}}"
+                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
             dependencies: [preprocess]
 
           - name: evaluate
@@ -43,7 +38,7 @@ spec:
                 - name: entry_point
                   value: evaluate
                 - name: parent_run_id
-                  value: "{{tasks.train.outputs.parameters.parent_run_id}}"
+                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
             dependencies: [train]
 
           - name: deploy
@@ -53,13 +48,13 @@ spec:
                 - name: entry_point
                   value: deploy
                 - name: parent_run_id
-                  value: "{{tasks.evaluate.outputs.parameters.parent_run_id}}"
+                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
             dependencies: [evaluate]
 
     - name: create-parent-run
       script:
-        image: <your-dockerhub-username>/custom-mlflow-conda:latest
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "python", "create_parent_run.py"]
+        image: marcy326/mlflow-conda:py3.11
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git", "--entry-point", "main"]
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project
@@ -67,11 +62,11 @@ spec:
           requests:
             memory: "64Mi"
             cpu: "250m"
-        outputs:
-          parameters:
-            - name: parent-run-id
-              valueFrom:
-                path: /tmp/parent_run_id.txt
+      outputs:
+        parameters:
+          - name: parent-run-id
+            valueFrom:
+              path: /tmp/parent_run_id.txt
 
     - name: mlflow
       inputs:
@@ -90,7 +85,7 @@ spec:
             memory: "64Mi"
             cpu: "250m"
 
-    volumes:
-      - name: mlflow-project
-        persistentVolumeClaim:
-          claimName: mlflow-project-pvc
+  volumes:
+    - name: mlflow-project
+      persistentVolumeClaim:
+        claimName: mlflow-project-pvc
