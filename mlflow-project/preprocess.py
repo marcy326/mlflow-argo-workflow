@@ -27,6 +27,7 @@ def main(parent_run_id):
         mlflow.log_artifact("X_test.csv", "preprocess")
         mlflow.log_artifact("y_train.csv", "preprocess")
         mlflow.log_artifact("y_test.csv", "preprocess")
+        mlflow.log_param("preprocess", "done")
 
 
 if __name__ == "__main__":
