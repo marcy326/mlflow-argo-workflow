@@ -10,7 +10,7 @@ def main():
         # モデルを含むDockerイメージのビルド
         run_id = run.info.run_id
         model_name = f"{DOCKER_USERNAME}/mlflow-model:{run_id:.5}"
-        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=model_name)
+        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=model_name, env_manager="local")
         print("build!")
 
         # ビルドしたイメージのビルド

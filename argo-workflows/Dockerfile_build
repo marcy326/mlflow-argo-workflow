@@ -1,0 +1,25 @@
+# ベースイメージとしてmarcy326/mlflow-conda:py3.11を使用
+FROM marcy326/mlflow-conda:py3.11
+
+# 必要なツールをインストール
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    lsb-release \
+    software-properties-common
+
+# Dockerの公式GPGキーを追加
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Dockerのリポジトリを追加
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+ | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Docker CLIと他の依存関係をインストール
+RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Dockerがrootで動作するように設定
+RUN usermod -aG docker root
+
+# デフォルトのコマンド
+CMD ["bash"]
