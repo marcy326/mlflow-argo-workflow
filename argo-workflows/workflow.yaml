@@ -14,9 +14,8 @@ spec:
               parameters:
                 - name: entry_point
                   value: preprocess
-                - name: run_id
-                  value: # None
-            dependencies: [create-parent-run]
+                - name: run_id_arg
+                  value: ""
 
           - name: train
             template: mlflow
@@ -24,8 +23,8 @@ spec:
               parameters:
                 - name: entry_point
                   value: train
-                - name: run_id
-                  value: "{{tasks.create-parent-run.outputs.return}}"
+                - name: run_id_arg
+                  value: "--run-id {{tasks.preprocess.outputs.result}}"
             dependencies: [preprocess]
 
           - name: evaluate
@@ -34,8 +33,8 @@ spec:
               parameters:
                 - name: entry_point
                   value: evaluate
-                - name: run_id
-                  value: "{{tasks.create-parent-run.outputs.return}}"
+                - name: run_id_arg
+                  value: "--run-id {{tasks.preprocess.outputs.result}}"
             dependencies: [train]
 
           - name: deploy
@@ -44,21 +43,21 @@ spec:
               parameters:
                 - name: entry_point
                   value: deploy
-                - name: run_id
-                  value: "{{tasks.create-parent-run.outputs.return}}"
+                - name: run_id_arg
+                  value: "--run-id {{tasks.preprocess.outputs.result}}"
             dependencies: [evaluate]
 
     - name: mlflow
       inputs:
         parameters:
           - name: entry_point
-          - name: run_id
+          - name: run_id_arg
       container:
         image: marcy326/mlflow-conda:py3.11
         imagePullPolicy: Always
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
                   "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local"]
+        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--env-manager", "local", "{{inputs.parameters.run_id_arg}}"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
