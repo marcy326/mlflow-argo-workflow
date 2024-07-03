@@ -5,9 +5,10 @@ import mlflow
 import mlflow.sklearn
 
 def main(parent_run_id):
-    with mlflow.start_run(run_id=parent_run_id) as run:
+    with mlflow.start_run() as run:
         # データの読み込み
-        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{parent_run_id}/preprocess", dst_path="./artifacts")
+        run_id = run.info.run_id
+        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_id}/preprocess", dst_path="./artifacts")
         X_test = pd.read_csv("artifacts/preprocess/X_test.csv")
         y_test = pd.read_csv("artifacts/preprocess/y_test.csv")
 
