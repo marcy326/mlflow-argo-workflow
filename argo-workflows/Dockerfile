@@ -9,8 +9,5 @@ COPY conda_env.yaml .
 # Conda環境を作成
 RUN conda env create -f conda_env.yaml
 
-# Conda環境をアクティブにするための設定
-SHELL ["conda", "run", "-n", "mlflow-env", "/bin/bash", "-c"]
-
 # Conda環境を自動的にアクティブにするスクリプト
 RUN echo "conda activate mlflow-env" >> ~/.bashrc

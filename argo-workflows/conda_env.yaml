@@ -4,7 +4,9 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - mlflow=2.14.1
   - pip
-  - scikit-learn
-  - pandas
+  - pip:
+    - mlflow==2.14.1
+    - scikit-learn
+    - pandas
+    - boto3
