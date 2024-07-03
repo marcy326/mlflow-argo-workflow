@@ -30,6 +30,16 @@ spec:
                 - name: run_id
                   value: "{{tasks.preprocess.outputs.result}}"
             dependencies: [train]
+          
+          - name: build-image
+            template: mlflow
+            arguments:
+              parameters:
+                - name: entry_point
+                  value: deploy
+                - name: run_id
+                  value: "{{tasks.preprocess.outputs.result}}"
+            dependencies: [evaluate]
 
           - name: deploy
             template: mlflow
@@ -97,6 +107,16 @@ spec:
                 key: AWS_SECRET_ACCESS_KEY
           - name: MLFLOW_S3_ENDPOINT_URL
             value: "http://minio.minio.svc.cluster.local:9000"
+          - name: DOCKER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: docker-hub-secret
+                key: username
+          - name: DOCKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: docker-hub-secret
+                key: password
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project

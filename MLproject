@@ -11,5 +11,7 @@ entry_points:
     command: "python mlflow-project/train.py"
   evaluate:
     command: "python mlflow-project/evaluate.py"
+  build-image:
+    command: "python mlflow-project/build-image.py"
   deploy:
     command: "python mlflow-project/deploy.py"

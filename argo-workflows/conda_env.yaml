@@ -10,3 +10,4 @@ dependencies:
     - scikit-learn
     - pandas
     - boto3
+    - docker
