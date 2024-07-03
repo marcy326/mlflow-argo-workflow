@@ -8,11 +8,11 @@ import mlflow.sklearn
 def main(parent_run_id):
     with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
         # データの読み込み
-        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{parent_run_id}/preprocess")
+        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{parent_run_id}/preprocess", dst_path="./artifacts")
         ls_file_name = os.listdir()
         print(ls_file_name)
-        X_train = pd.read_csv("preprocess/X_train.csv")
-        y_train = pd.read_csv("preprocess/y_train.csv")
+        X_train = pd.read_csv("artifacts/preprocess/X_train.csv")
+        y_train = pd.read_csv("artifacts/preprocess/y_train.csv")
 
         # モデルの学習
         model = RandomForestClassifier(n_estimators=100, random_state=42)
