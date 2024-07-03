@@ -5,7 +5,7 @@ import mlflow
 import mlflow.sklearn
 
 def main(parent_run_id):
-    with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
+    with mlflow.start_run(run_id=parent_run_id) as run:
         # データのダウンロード
         url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
         data = pd.read_csv(url, header=None)

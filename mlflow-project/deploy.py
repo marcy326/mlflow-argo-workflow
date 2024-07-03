@@ -3,7 +3,7 @@ import mlflow
 import mlflow.sklearn
 
 def main(parent_run_id):
-    with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
+    with mlflow.start_run(run_id=parent_run_id) as run:
         # モデルの読み込み
         model = mlflow.sklearn.load_model(f"runs:/{parent_run_id}/random_forest_model")
         print(model)
