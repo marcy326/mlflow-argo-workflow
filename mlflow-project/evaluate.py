@@ -1,10 +1,9 @@
-import argparse
 import pandas as pd
 from sklearn.metrics import accuracy_score
 import mlflow
 import mlflow.sklearn
 
-def main(parent_run_id):
+def main():
     with mlflow.start_run() as run:
         # データの読み込み
         run_id = run.info.run_id
@@ -21,7 +20,4 @@ def main(parent_run_id):
         mlflow.log_metric("accuracy", accuracy)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--parent_run_id", type=str, required=True)
-    args = parser.parse_args()
-    main(args.parent_run_id)
+    main()

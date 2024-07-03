@@ -8,16 +8,16 @@ entry_points:
   preprocess:
     parameters:
       parent_run_id: {type: str}
-    command: "python mlflow-project/preprocess.py --parent_run_id {parent_run_id}"
+    command: "python mlflow-project/preprocess.py"
   train:
     parameters:
       parent_run_id: {type: str}
-    command: "python mlflow-project/train.py --parent_run_id {parent_run_id}"
+    command: "python mlflow-project/train.py"
   evaluate:
     parameters:
       parent_run_id: {type: str}
-    command: "python mlflow-project/evaluate.py --parent_run_id {parent_run_id}"
+    command: "python mlflow-project/evaluate.py"
   deploy:
     parameters:
       parent_run_id: {type: str}
-    command: "python mlflow-project/deploy.py --parent_run_id {parent_run_id}"
+    command: "python mlflow-project/deploy.py"

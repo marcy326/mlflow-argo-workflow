@@ -1,17 +1,14 @@
 import os
-import argparse
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import mlflow
 import mlflow.sklearn
 
-def main(parent_run_id):
+def main():
     with mlflow.start_run() as run:
         # データの読み込み
         run_id = run.info.run_id
         mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_id}/preprocess", dst_path="./artifacts")
-        ls_file_name = os.listdir()
-        print(ls_file_name)
         X_train = pd.read_csv("artifacts/preprocess/X_train.csv")
         y_train = pd.read_csv("artifacts/preprocess/y_train.csv")
 
@@ -23,7 +20,4 @@ def main(parent_run_id):
         mlflow.sklearn.log_model(model, "random_forest_model")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--parent_run_id", type=str, required=True)
-    args = parser.parse_args()
-    main(args.parent_run_id)
+    main()

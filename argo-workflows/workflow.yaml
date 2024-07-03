@@ -8,17 +8,14 @@ spec:
     - name: main
       dag:
         tasks:
-          - name: create-parent-run
-            template: create-parent-run
-
           - name: preprocess
             template: mlflow
             arguments:
               parameters:
                 - name: entry_point
                   value: preprocess
-                - name: parent_run_id
-                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
+                - name: run_id
+                  value: # None
             dependencies: [create-parent-run]
 
           - name: train
@@ -27,8 +24,8 @@ spec:
               parameters:
                 - name: entry_point
                   value: train
-                - name: parent_run_id
-                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
+                - name: run_id
+                  value: "{{tasks.create-parent-run.outputs.return}}"
             dependencies: [preprocess]
 
           - name: evaluate
@@ -37,8 +34,8 @@ spec:
               parameters:
                 - name: entry_point
                   value: evaluate
-                - name: parent_run_id
-                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
+                - name: run_id
+                  value: "{{tasks.create-parent-run.outputs.return}}"
             dependencies: [train]
 
           - name: deploy
@@ -47,43 +44,21 @@ spec:
               parameters:
                 - name: entry_point
                   value: deploy
-                - name: parent_run_id
-                  value: "{{tasks.create-parent-run.outputs.parameters.parent-run-id}}"
+                - name: run_id
+                  value: "{{tasks.create-parent-run.outputs.return}}"
             dependencies: [evaluate]
-
-    - name: create-parent-run
-      script:
-        image: marcy326/mlflow-conda:py3.11
-        imagePullPolicy: Always
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env",
-                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git", "--entry-point", "main", "--env-manager", "local"]
-        env:
-          - name: MLFLOW_TRACKING_URI
-            value: "http://mlflow.mlflow:5000"
-        volumeMounts:
-          - name: mlflow-project
-            mountPath: /mnt/mlflow-project
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
-      outputs:
-        parameters:
-          - name: parent-run-id
-            valueFrom:
-              path: /tmp/parent_run_id.txt
 
     - name: mlflow
       inputs:
         parameters:
           - name: entry_point
-          - name: parent_run_id
+          - name: run_id
       container:
         image: marcy326/mlflow-conda:py3.11
         imagePullPolicy: Always
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
                   "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "-P", "parent_run_id={{inputs.parameters.parent_run_id}}", "--run-id", "{{inputs.parameters.parent_run_id}}", "--env-manager", "local"]
+        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"

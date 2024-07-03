@@ -1,11 +1,12 @@
-import argparse
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import mlflow
 import mlflow.sklearn
 
-def main(parent_run_id):
+def main():
     with mlflow.start_run() as run:
+        run_id = run.info.run_id
+        print(run_id)
         # データのダウンロード
         url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
         data = pd.read_csv(url, header=None)
@@ -31,7 +32,4 @@ def main(parent_run_id):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--parent_run_id", type=str, required=True)
-    args = parser.parse_args()
-    main(args.parent_run_id)
+    main()
