@@ -1,3 +1,4 @@
+import os
 import argparse
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -7,8 +8,7 @@ import mlflow.sklearn
 def main(parent_run_id):
     with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
         # データの読み込み
-        mlflow.artifacts.download_artifacts(run_id=parent_run_id)
-        import os
+        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{parent_run_id}/preprocess")
         ls_file_name = os.listdir()
         print(ls_file_name)
         X_train = pd.read_csv("preprocess/X_train.csv")
