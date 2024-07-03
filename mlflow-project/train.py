@@ -8,6 +8,9 @@ def main(parent_run_id):
     with mlflow.start_run(run_id=parent_run_id, nested=True) as run:
         # データの読み込み
         mlflow.artifacts.download_artifacts(run_id=parent_run_id)
+        import os
+        ls_file_name = os.listdir()
+        print(ls_file_name)
         X_train = pd.read_csv("preprocess/X_train.csv")
         y_train = pd.read_csv("preprocess/y_train.csv")
 
