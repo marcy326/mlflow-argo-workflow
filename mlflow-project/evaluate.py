@@ -18,6 +18,7 @@ def main():
         predictions = model.predict(X_test)
         accuracy = accuracy_score(y_test, predictions)
         mlflow.log_metric("accuracy", accuracy)
+        mlflow.set_tag(key='evaluate', value="done")
 
 if __name__ == "__main__":
     main()

@@ -8,6 +8,7 @@ def main():
         model = mlflow.sklearn.load_model(f"runs:/{run_id}/random_forest_model")
         print(model)
         print("deploy!")
+        mlflow.set_tag(key='deploy', value="done")
 
 if __name__ == "__main__":
     main()

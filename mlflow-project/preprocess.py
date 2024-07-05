@@ -28,7 +28,7 @@ def main():
         mlflow.log_artifact("X_test.csv", "preprocess")
         mlflow.log_artifact("y_train.csv", "preprocess")
         mlflow.log_artifact("y_test.csv", "preprocess")
-        mlflow.log_param("preprocess", "done")
+        mlflow.set_tag(key='preprocess', value="done")
 
 
 if __name__ == "__main__":
