@@ -14,6 +14,7 @@ def main():
         image_tag = f"{image_name}:{tag_name}"
         mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=image_tag, enable_mlserver=True)
         print("build!")
+        mlflow.set_tag(key='build_image', value="done")
 
         client = docker.from_env()
         image = client.images.get(image_tag)
@@ -22,6 +23,8 @@ def main():
         # ビルドしたイメージのプッシュ
         client.login(username=DOCKER_USERNAME, password=DOCKER_PASSWORD)
         client.images.push(image_name)
+        mlflow.set_tag(key='push_image', value="done")
+        mlflow.set_tag(key='image_name', value=image_tag)
 
 if __name__ == "__main__":
     main()
