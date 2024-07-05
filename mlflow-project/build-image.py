@@ -9,14 +9,19 @@ def main():
     with mlflow.start_run() as run:
         # モデルを含むDockerイメージのビルド
         run_id = run.info.run_id
-        model_name = f"{DOCKER_USERNAME}/mlflow-model:{run_id:.5}"
-        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=model_name, enable_mlserver=True)
+        image_name = f"{DOCKER_USERNAME}/mlflow-model"
+        tag_name = f"{run_id:.5}"
+        image_tag = f"{image_name}:{tag_name}"
+        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=image_tag, enable_mlserver=True)
         print("build!")
 
-        # ビルドしたイメージのビルド
         client = docker.from_env()
+        image = client.images.get(image_tag)
+        image.tag(image_tag, f"{image_name}:latest")
+
+        # ビルドしたイメージのプッシュ
         client.login(username=DOCKER_USERNAME, password=DOCKER_PASSWORD)
-        client.images.push(model_name)
+        client.images.push(image_name)
 
 if __name__ == "__main__":
     main()

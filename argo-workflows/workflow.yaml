@@ -30,7 +30,7 @@ spec:
                 - name: run_id
                   value: "{{tasks.preprocess.outputs.result}}"
             dependencies: [train]
-          
+
           - name: build-image
             template: mlflow-build
             arguments:
@@ -80,18 +80,19 @@ spec:
           requests:
             memory: "64Mi"
             cpu: "250m"
-          
+
     - name: mlflow-build
       inputs:
         parameters:
           - name: entry_point
           - name: run_id
       container:
-        image: marcy326/mlflow-conda-docker:latest
+        image: marcy326/mlflow-conda:dind
         imagePullPolicy: Always
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
-                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local"]
+        command: ["/bin/sh", "-c"]
+        args: [
+          "dockerd-entrypoint.sh & sleep 20 && conda run --no-capture-output -n mlflow-env mlflow run https://github.com/marcy326/mlflow-argo.git --entry-point {{inputs.parameters.entry_point}} --run-id {{inputs.parameters.run_id}} --env-manager local"
+        ]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
@@ -117,13 +118,24 @@ spec:
               secretKeyRef:
                 name: docker-secret
                 key: password
+          - name: DOCKER_HOST
+            value: "tcp://localhost:2375"
         volumeMounts:
           - name: mlflow-project
             mountPath: /mnt/mlflow-project
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
+          - name: docker-graph-storage
+            mountPath: /var/lib/docker
+      sidecars:
+        - name: dind
+          image: docker:20.10.7-dind
+          securityContext:
+            privileged: true
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          volumeMounts:
+            - name: docker-graph-storage
+              mountPath: /var/lib/docker
 
     - name: mlflow
       inputs:
@@ -163,3 +175,5 @@ spec:
     - name: mlflow-project
       persistentVolumeClaim:
         claimName: mlflow-project-pvc
+    - name: docker-graph-storage
+      emptyDir: {}

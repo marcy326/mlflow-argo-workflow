@@ -1,25 +1,43 @@
-# ベースイメージとしてmarcy326/mlflow-conda:py3.11を使用
-FROM marcy326/mlflow-conda:py3.11
+# Docker-in-Docker をベースイメージとして使用
+FROM docker:latest
 
-# 必要なツールをインストール
-RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
-    lsb-release \
-    software-properties-common
+# 必要なパッケージをインストール
+RUN apk add --no-cache \
+    bash \
+    wget \
+    bzip2 \
+    ca-certificates \
+    gcc \
+    g++ \
+    musl-dev \
+    linux-headers \
+    cmake \
+    make \
+    patchelf
 
-# Dockerの公式GPGキーを追加
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+# glibcをインストール
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.34-r0/glibc-2.34-r0.apk && \
+    apk add --force-overwrite glibc-2.34-r0.apk && \
+    rm glibc-2.34-r0.apk
 
-# Dockerのリポジトリを追加
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
- | tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Minicondaをダウンロードしてインストール
+ENV CONDA_DIR /opt/conda
+ENV PATH $CONDA_DIR/bin:$PATH
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    chmod +x /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniconda.sh && \
+    conda clean -t -i -p -y
 
-# Docker CLIと他の依存関係をインストール
-RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+# 仮想環境を作成し、conda_env.yamlをインストール
+WORKDIR /mlflow-project
+COPY conda_env.yaml .
+RUN conda env create -f conda_env.yaml
 
-# Dockerがrootで動作するように設定
-RUN usermod -aG docker root
+# エントリーポイントスクリプトをコピー
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# デフォルトのコマンド
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["bash"]
