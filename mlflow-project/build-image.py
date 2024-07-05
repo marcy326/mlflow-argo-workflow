@@ -18,7 +18,7 @@ def main():
 
         client = docker.from_env()
         image = client.images.get(image_tag)
-        image.tag(image_tag, f"{image_name}:latest")
+        image.tag(image_tag, tag="latest")
 
         # ビルドしたイメージのプッシュ
         client.login(username=DOCKER_USERNAME, password=DOCKER_PASSWORD)
