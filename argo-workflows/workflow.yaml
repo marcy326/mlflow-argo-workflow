@@ -41,15 +41,6 @@ spec:
                   value: "{{tasks.preprocess.outputs.result}}"
             dependencies: [evaluate]
 
-          - name: deploy
-            template: k8s-deploy
-            arguments:
-              parameters:
-                - name: image
-                  value: "{{tasks.build-image.outputs.result}}"
-            dependencies: [build-image]
-
-
     - name: mlflow-preprocess
       container:
         image: marcy326/mlflow-conda:py3.11
