@@ -52,20 +52,11 @@ spec:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
           - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: AWS_ACCESS_KEY_ID
+            value: minio
           - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: AWS_SECRET_ACCESS_KEY
+            value: minio
           - name: MLFLOW_S3_ENDPOINT_URL
             value: "http://minio.minio.svc.cluster.local:9000"
-        volumeMounts:
-          - name: mlflow-project
-            mountPath: /mnt/mlflow-project
         resources:
           requests:
             memory: "64Mi"
@@ -111,8 +102,6 @@ spec:
           - name: DOCKER_HOST
             value: "tcp://localhost:2375"
         volumeMounts:
-          - name: mlflow-project
-            mountPath: /mnt/mlflow-project
           - name: docker-graph-storage
             mountPath: /var/lib/docker
       sidecars:
@@ -153,17 +142,11 @@ spec:
                 key: AWS_SECRET_ACCESS_KEY
           - name: MLFLOW_S3_ENDPOINT_URL
             value: "http://minio.minio.svc.cluster.local:9000"
-        volumeMounts:
-          - name: mlflow-project
-            mountPath: /mnt/mlflow-project
         resources:
           requests:
             memory: "64Mi"
             cpu: "250m"
 
   volumes:
-    - name: mlflow-project
-      persistentVolumeClaim:
-        claimName: mlflow-project-pvc
     - name: docker-graph-storage
       emptyDir: {}
