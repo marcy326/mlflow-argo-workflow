@@ -12,7 +12,7 @@ def main():
         image_name = f"{DOCKER_USERNAME}/mlflow-model"
         tag_name = f"{run_id:.5}"
         image_tag = f"{image_name}:{tag_name}"
-        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=image_tag, enable_mlserver=True)
+        mlflow.models.build_docker(f"runs:/{run_id}/random_forest_model", name=image_tag)
         mlflow.set_tag(key='build_image', value="done")
 
         client = docker.from_env()

@@ -46,7 +46,7 @@ spec:
             arguments:
               parameters:
                 - name: image
-                  value: "marcy326/mlflow-model:latest"
+                  value: "{{tasks.build-image.outputs.result}}"
             dependencies: [build-image]
 
 
@@ -169,16 +169,6 @@ spec:
           requests:
             memory: "64Mi"
             cpu: "250m"
-    - name: k8s-deploy
-      inputs:
-        parameters:
-          - name: image
-      script:
-        image: bitnami/kubectl:latest
-        command: ["/bin/sh"]
-        source: |
-          kubectl set image deployment/my-ml-deployment your-container-name={{inputs.parameters.image}} --namespace=ml-model
-          kubectl rollout status deployment/my-ml-deployment --namespace=ml-model
 
   volumes:
     - name: mlflow-project
