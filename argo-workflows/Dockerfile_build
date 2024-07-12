@@ -35,6 +35,9 @@ WORKDIR /mlflow-project
 COPY conda_env.yaml .
 RUN conda env create -f conda_env.yaml
 
+# Conda環境を自動的にアクティブにするスクリプト
+RUN echo "conda activate mlflow-env" >> ~/.bashrc
+
 # エントリーポイントスクリプトをコピー
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

@@ -17,7 +17,7 @@ def main():
         model.fit(X_train, y_train.values.ravel())
 
         # モデルの保存
-        mlflow.sklearn.log_model(model, "random_forest_model")
+        mlflow.sklearn.log_model(model, "model")
         mlflow.set_tag(key='train', value="done")
 
 if __name__ == "__main__":

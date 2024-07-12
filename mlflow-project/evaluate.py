@@ -12,7 +12,7 @@ def main():
         y_test = pd.read_csv("artifacts/preprocess/y_test.csv")
 
         # モデルの読み込み
-        model = mlflow.sklearn.load_model(f"runs:/{run_id}/random_forest_model")
+        model = mlflow.sklearn.load_model(f"runs:/{run_id}/model")
 
         # モデルの評価
         predictions = model.predict(X_test)

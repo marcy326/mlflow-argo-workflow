@@ -52,11 +52,17 @@ spec:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
           - name: AWS_ACCESS_KEY_ID
-            value: minio
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_ACCESS_KEY
           - name: AWS_SECRET_ACCESS_KEY
-            value: minio
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_SECRET_KEY
           - name: MLFLOW_S3_ENDPOINT_URL
-            value: "http://minio.minio.svc.cluster.local:9000"
+            value: "http://minio.mlflow.svc.cluster.local:9000"
         resources:
           requests:
             memory: "64Mi"
@@ -72,7 +78,7 @@ spec:
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args: [
-          "dockerd-entrypoint.sh & sleep 20 && conda run --no-capture-output -n mlflow-env mlflow run https://github.com/marcy326/mlflow-argo.git --entry-point {{inputs.parameters.entry_point}} --run-id {{inputs.parameters.run_id}} --env-manager local"
+          "conda run --no-capture-output -n mlflow-env mlflow run https://github.com/marcy326/mlflow-argo.git --entry-point {{inputs.parameters.entry_point}} --run-id {{inputs.parameters.run_id}} --env-manager local"
         ]
         env:
           - name: MLFLOW_TRACKING_URI
@@ -81,14 +87,14 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: minio-secret
-                key: AWS_ACCESS_KEY_ID
+                key: MINIO_ACCESS_KEY
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 name: minio-secret
-                key: AWS_SECRET_ACCESS_KEY
+                key: MINIO_SECRET_KEY
           - name: MLFLOW_S3_ENDPOINT_URL
-            value: "http://minio.minio.svc.cluster.local:9000"
+            value: "http://minio.mlflow.svc.cluster.local:9000"
           - name: DOCKER_USERNAME
             valueFrom:
               secretKeyRef:
@@ -134,14 +140,14 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: minio-secret
-                key: AWS_ACCESS_KEY_ID
+                key: MINIO_ACCESS_KEY
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 name: minio-secret
-                key: AWS_SECRET_ACCESS_KEY
+                key: MINIO_SECRET_KEY
           - name: MLFLOW_S3_ENDPOINT_URL
-            value: "http://minio.minio.svc.cluster.local:9000"
+            value: "http://minio.mlflow.svc.cluster.local:9000"
         resources:
           requests:
             memory: "64Mi"
