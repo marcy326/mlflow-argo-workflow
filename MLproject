@@ -3,8 +3,8 @@ name: mlflow-argo
 conda_env: argo-workflows/conda_env.yaml
 
 entry_points:
-  main:
-    command: "python mlflow-project/create_parent_run.py"
+  initialize:
+    command: "python mlflow-project/initialize.py"
   preprocess:
     command: "python mlflow-project/preprocess.py"
   train:

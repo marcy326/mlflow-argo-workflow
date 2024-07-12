@@ -8,8 +8,18 @@ spec:
     - name: main
       dag:
         tasks:
+          - name : initialize
+            template: mlflow-initialize
+
           - name: preprocess
-            template: mlflow-preprocess
+            template: mlflow
+            arguments:
+              parameters:
+                - name: entry_point
+                  value: preprocess
+                - name: run_id
+                  value: "{{tasks.initialize.outputs.result}}"
+            dependencies: [initialize]
 
           - name: train
             template: mlflow
@@ -18,7 +28,7 @@ spec:
                 - name: entry_point
                   value: train
                 - name: run_id
-                  value: "{{tasks.preprocess.outputs.result}}"
+                  value: "{{tasks.initialize.outputs.result}}"
             dependencies: [preprocess]
 
           - name: evaluate
@@ -28,7 +38,7 @@ spec:
                 - name: entry_point
                   value: evaluate
                 - name: run_id
-                  value: "{{tasks.preprocess.outputs.result}}"
+                  value: "{{tasks.initialize.outputs.result}}"
             dependencies: [train]
 
           - name: build-image
@@ -38,31 +48,19 @@ spec:
                 - name: entry_point
                   value: build-image
                 - name: run_id
-                  value: "{{tasks.preprocess.outputs.result}}"
+                  value: "{{tasks.initialize.outputs.result}}"
             dependencies: [evaluate]
 
-    - name: mlflow-preprocess
+    - name: mlflow-initialize
       container:
         image: marcy326/mlflow-conda:py3.11
         imagePullPolicy: Always
         command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
                   "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "preprocess", "--env-manager", "local"]
+        args: ["--entry-point", "initialize", "--env-manager", "local"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
-          - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: MINIO_ACCESS_KEY
-          - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: MINIO_SECRET_KEY
-          - name: MLFLOW_S3_ENDPOINT_URL
-            value: "http://minio.mlflow.svc.cluster.local:9000"
         resources:
           requests:
             memory: "64Mi"
