@@ -5,6 +5,8 @@ conda_env: argo-workflows/conda_env.yaml
 entry_points:
   initialize:
     command: "python mlflow-project/initialize.py"
+  initialize:
+    command: "python mlflow-project/ingest.py"
   preprocess:
     command: "python mlflow-project/preprocess.py"
   train:

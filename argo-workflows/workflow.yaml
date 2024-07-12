@@ -10,6 +10,16 @@ spec:
         tasks:
           - name : initialize
             template: mlflow-initialize
+          
+          - name: ingest
+            template: mlflow
+            arguments:
+              parameters:
+                - name: entry_point
+                  value: ingest
+                - name: run_id
+                  value: "{{tasks.initialize.outputs.result}}"
+            dependencies: [initialize]
 
           - name: preprocess
             template: mlflow
@@ -61,6 +71,37 @@ spec:
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+
+    - name: mlflow
+      inputs:
+        parameters:
+          - name: entry_point
+          - name: run_id
+      container:
+        image: marcy326/mlflow-conda:py3.11
+        imagePullPolicy: Always
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
+                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
+        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local"]
+        env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://mlflow.mlflow:5000"
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_ACCESS_KEY
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_SECRET_KEY
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: "http://minio.mlflow.svc.cluster.local:9000"
         resources:
           requests:
             memory: "64Mi"
@@ -119,37 +160,6 @@ spec:
           volumeMounts:
             - name: docker-graph-storage
               mountPath: /var/lib/docker
-
-    - name: mlflow
-      inputs:
-        parameters:
-          - name: entry_point
-          - name: run_id
-      container:
-        image: marcy326/mlflow-conda:py3.11
-        imagePullPolicy: Always
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
-                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
-        args: ["--entry-point", "{{inputs.parameters.entry_point}}", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local"]
-        env:
-          - name: MLFLOW_TRACKING_URI
-            value: "http://mlflow.mlflow:5000"
-          - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: MINIO_ACCESS_KEY
-          - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: minio-secret
-                key: MINIO_SECRET_KEY
-          - name: MLFLOW_S3_ENDPOINT_URL
-            value: "http://minio.mlflow.svc.cluster.local:9000"
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
 
   volumes:
     - name: docker-graph-storage

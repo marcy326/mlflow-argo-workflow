@@ -6,10 +6,9 @@ import mlflow.sklearn
 def main():
     with mlflow.start_run() as run:
         run_id = run.info.run_id
-        print(run_id)
         # データのダウンロード
-        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-        data = pd.read_csv(url, header=None)
+        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_id}/raw", dst_path="./artifacts")
+        data = pd.read_csv("artifacts/raw/data.csv")
         data.columns = ["sepal_length", "sepal_width", "petal_length", "petal_width", "class"]
 
         # データの前処理
