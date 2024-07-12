@@ -29,7 +29,7 @@ spec:
                   value: preprocess
                 - name: run_id
                   value: "{{tasks.initialize.outputs.result}}"
-            dependencies: [initialize]
+            dependencies: [ingest]
 
           - name: train
             template: mlflow
@@ -71,6 +71,18 @@ spec:
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_ACCESS_KEY
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_SECRET_KEY
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: "http://minio.mlflow.svc.cluster.local:9000"
         resources:
           requests:
             memory: "64Mi"
