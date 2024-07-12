@@ -24,6 +24,7 @@ metadata:
 data:
   BACKEND_STORE_URI: postgresql://mlflow:password@postgres:5432/mlflow
   ARTIFACT_ROOT: s3://mlflow-artifacts/
+  MLFLOW_S3_ENDPOINT_URL: http://minio:9000
 
 ---
 apiVersion: apps/v1
@@ -188,6 +189,17 @@ spec:
         - "--default-artifact-root=$(ARTIFACT_ROOT)"
         - "--host=0.0.0.0"
         - "--port=5000"
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: MINIO_ACCESS_KEY
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: MINIO_SECRET_KEY
         envFrom:
         - configMapRef:
             name: mlflow-config
