@@ -38,10 +38,6 @@ def main():
 
         print(f"Accuracy: {accuracy}")
         print(f"Classification Report:\n{report}")
-
-        # メトリクスのログ
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_text(report, "classification_report.txt")
         
         # モデルの保存
         mlflow.sklearn.log_model(best_model, "model")
