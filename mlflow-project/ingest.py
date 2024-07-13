@@ -6,7 +6,7 @@ def main():
         run_id = run.info.run_id
         print(run_id)
         # データのダウンロード
-        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+        url = "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv"
         data = pd.read_csv(url, header=None)
 
         # 前処理したデータを保存
