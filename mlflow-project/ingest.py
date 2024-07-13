@@ -7,7 +7,7 @@ def main():
         print(run_id)
         # データのダウンロード
         url = "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv"
-        data = pd.read_csv(url, header=None)
+        data = pd.read_csv(url)
 
         # 前処理したデータを保存
         data.to_csv("data.csv", index=False)
