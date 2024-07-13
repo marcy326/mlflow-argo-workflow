@@ -25,7 +25,7 @@ def main():
             ('scaler', StandardScaler())
         ])
 
-        categorical_features = ["Pclass", "Sex", "Embarked"]
+        categorical_features = ["Pclass", "Sex"]
         categorical_transformer = Pipeline(steps=[
             ('imputer', SimpleImputer(strategy='most_frequent')),
             ('onehot', OneHotEncoder(handle_unknown='ignore'))
