@@ -19,7 +19,7 @@ def main():
         y = data["Survived"]
 
         # 前処理の定義
-        numeric_features = ["Age", "Fare", "SibSp", "Parch"]
+        numeric_features = ["Age", "Fare", "Siblings/Spouses Aboard", "Parents/Children Aboard"]
         numeric_transformer = Pipeline(steps=[
             ('imputer', SimpleImputer(strategy='median')),
             ('scaler', StandardScaler())
@@ -44,8 +44,8 @@ def main():
         X_train, X_test, y_train, y_test = train_test_split(X_preprocessed, y, test_size=0.2, random_state=42)
 
         # 前処理したデータを保存
-        X_train.to_csv("X_train.csv", index=False)
-        X_test.to_csv("X_test.csv", index=False)
+        pd.DataFrame(X_train).to_csv("X_train.csv", index=False)
+        pd.DataFrame(X_test).to_csv("X_test.csv", index=False)
         pd.DataFrame(y_train).to_csv("y_train.csv", index=False)
         pd.DataFrame(y_test).to_csv("y_test.csv", index=False)
 
