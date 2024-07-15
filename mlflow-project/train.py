@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import mlflow
 import mlflow.sklearn
+from mlflow.models.signature import infer_signature
 
 def main():
     with mlflow.start_run() as run:
@@ -32,7 +33,14 @@ def main():
         mlflow.log_text(report, "classification_report.txt")
 
         # モデルの保存
-        mlflow.sklearn.log_model(model, "model")
+        model_signature = infer_signature(X_train, y_train)
+
+        mlflow.sklearn.log_model(
+            model,
+            "model",
+            registered_model_name="RandomForestClassifier",
+            signature=model_signature
+        )
         mlflow.set_tag(key='train', value="done")
 
 if __name__ == "__main__":
