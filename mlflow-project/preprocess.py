@@ -39,13 +39,14 @@ def main():
         )
 
         X_preprocessed = preprocessor.fit_transform(X)
+        X_columns = preprocessor.get_feature_names_out()
 
         # データの分割
         X_train, X_test, y_train, y_test = train_test_split(X_preprocessed, y, test_size=0.2, random_state=42)
 
         # 前処理したデータを保存
-        pd.DataFrame(X_train).to_csv("X_train.csv", index=False)
-        pd.DataFrame(X_test).to_csv("X_test.csv", index=False)
+        pd.DataFrame(X_train, columns=X_columns).to_csv("X_train.csv", index=False)
+        pd.DataFrame(X_test, columns=X_columns).to_csv("X_test.csv", index=False)
         pd.DataFrame(y_train).to_csv("y_train.csv", index=False)
         pd.DataFrame(y_test).to_csv("y_test.csv", index=False)
 
