@@ -60,6 +60,22 @@ spec:
                 - name: run_id
                   value: "{{tasks.initialize.outputs.result}}"
             dependencies: [evaluate]
+          
+          - name: deploy
+            template: mlflow-deploy
+            arguments:
+              parameters:
+                - name: image_name
+                  value: "{{tasks.build-image.outputs.result}}"
+            dependencies: [build-image]
+
+          - name: test-inference
+            template: mlflow-inference
+            arguments:
+              parameters:
+                - name: inference_url
+                  value: "http://mlflow-model-service.mlmodel.svc.cluster.local:8080/invocations"
+            dependencies: [deploy]
 
     - name: mlflow-initialize
       container:
@@ -172,6 +188,48 @@ spec:
           volumeMounts:
             - name: docker-graph-storage
               mountPath: /var/lib/docker
+    
+    - name: mlflow-deploy
+      inputs:
+        parameters:
+          - name: image_name
+      script:
+        image: bitnami/kubectl:latest
+        command:
+          - sh
+        source: |
+          kubectl set image deployment/mlflow-model-deployment mlflow-model={{inputs.parameters.image_name}}
+          kubectl scale deployment mlflow-model-deployment --replicas=1
+    
+    - name: mlflow-inference
+      inputs:
+        parameters:
+          - name: run_id
+          - name: inference_url
+      script:
+        image: marcy326/mlflow-conda:py3.11
+        imagePullPolicy: Always
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "python", "test_inference.py"]
+        args: ["--url", "{{inputs.parameters.inference_url}}"]
+        env:
+          - name: MLFLOW_TRACKING_URI
+            value: "http://mlflow.mlflow:5000"
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_ACCESS_KEY
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secret
+                key: MINIO_SECRET_KEY
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: "http://minio.mlflow.svc.cluster.local:9000"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
 
   volumes:
     - name: docker-graph-storage

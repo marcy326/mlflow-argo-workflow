@@ -15,3 +15,7 @@ entry_points:
     command: "python mlflow-project/evaluate.py"
   build-image:
     command: "python mlflow-project/build-image.py"
+  test-inference:
+    parameters:
+      url: {type: str, default: "http://mlflow-model.example:80/invocations"}
+    command: "python mlflow-project/test_inference.py --url {url}"
