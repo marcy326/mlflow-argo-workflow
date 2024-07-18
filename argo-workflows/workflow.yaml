@@ -65,8 +65,8 @@ spec:
             template: mlflow-deploy
             arguments:
               parameters:
-                - name: image_name
-                  value: "{{tasks.build-image.outputs.result}}"
+                - name: run_id
+                  value: "{{tasks.initialize.outputs.result}}"
             dependencies: [build-image]
 
           - name: test-inference
@@ -190,21 +190,27 @@ spec:
               mountPath: /var/lib/docker
     
     - name: mlflow-deploy
+      serviceAccountName: argo-deploy-sa
       inputs:
         parameters:
-          - name: image_name
-      script:
+          - name: run_id
+      container:
         image: bitnami/kubectl:latest
-        command:
-          - sh
-        source: |
-          kubectl set image deployment/mlflow-model-deployment mlflow-model={{inputs.parameters.image_name}}
-          kubectl scale deployment mlflow-model-deployment --replicas=1
+        command: 
+          - bin/bash
+          - -c
+          - |
+            run_id={{inputs.parameters.run_id}}
+            image_name=marcy326/mlflow-model:${run_id:0:5}
+            echo $image_name
+            kubectl set image deployment/mlflow-model-deployment mlflow-model-container=$image_name -n mlmodel
+            kubectl scale deployment mlflow-model-deployment --replicas=1 -n mlmodel
+            kubectl rollout restart deployment/mlflow-model-deployment -n mlmodel
+            kubectl describe deployment mlflow-model-deployment -n mlmodel
     
     - name: mlflow-inference
       inputs:
         parameters:
-          - name: run_id
           - name: inference_url
       script:
         image: marcy326/mlflow-conda:py3.11

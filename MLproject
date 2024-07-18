@@ -18,4 +18,4 @@ entry_points:
   test-inference:
     parameters:
       url: {type: str, default: "http://mlflow-model.example:80/invocations"}
-    command: "python mlflow-project/test_inference.py --url {url}"
+    command: "python mlflow-project/inference.py --url {url}"

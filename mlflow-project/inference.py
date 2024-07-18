@@ -6,7 +6,6 @@ import click
 @click.option('--url', required=True, help='The inference endpoint URL.')
 def main(url):
     # 推論エンドポイントのURL
-    # url = "http://mlflow-model-service.mlmodel.svc.cluster.local:8080/invocations"
 
     # テストデータ
     data = {
