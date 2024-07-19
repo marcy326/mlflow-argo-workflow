@@ -1,34 +1,30 @@
 import requests
 import json
 import click
+import mlflow
+import pandas as pd
 
 @click.command()
 @click.option('--url', required=True, help='The inference endpoint URL.')
 def main(url):
-    # 推論エンドポイントのURL
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+        mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_id}/preprocess", dst_path="./artifacts")
+        X_test = pd.read_csv("artifacts/preprocess/X_test.csv")
+        y_test = pd.read_csv("artifacts/preprocess/y_test.csv")
 
-    # テストデータ
-    data = {
-        "instances": [
-            {
-                "num__Age": 22.0,
-                "num__Fare": 7.25,
-                "num__Siblings/Spouses Aboard": 1.0,
-                "num__Parents/Children Aboard": 0.0,
-                "cat__Pclass_1": 0.0,
-                "cat__Pclass_2": 0.0,
-                "cat__Pclass_3": 1.0,
-                "cat__Sex_female": 0.0,
-                "cat__Sex_male": 1.0
-            }
-        ]
-    }
+        instances = X_test.to_dict(orient='records')
+        data = {"instances": instances}
 
-    # 推論リクエストを送信
-    response = requests.post(url, json=data)
+        # 推論リクエストを送信
+        response = requests.post(url, json=data)
+        response_data = response.json()
+        predictions = response_data.get('predictions', [])
 
-    # レスポンスを表示
-    print(response.json())
+        # レスポンスを表示
+        print(f"predictions: {predictions}")
+        print(f"truth: {y_test}")
+
 
 if __name__ == "__main__":
     main()

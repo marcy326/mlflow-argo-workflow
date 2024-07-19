@@ -73,6 +73,8 @@ spec:
             template: mlflow-inference
             arguments:
               parameters:
+                - name: run_id
+                  value: "{{tasks.initialize.outputs.result}}"
                 - name: inference_url
                   value: "http://mlflow-model-service.mlmodel.svc.cluster.local:8080/invocations"
             dependencies: [deploy]
@@ -211,12 +213,14 @@ spec:
     - name: mlflow-inference
       inputs:
         parameters:
+          - name: run_id
           - name: inference_url
       script:
         image: marcy326/mlflow-conda:py3.11
         imagePullPolicy: Always
-        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", "python", "test_inference.py"]
-        args: ["--url", "{{inputs.parameters.inference_url}}"]
+        command: ["conda", "run", "--no-capture-output", "-n", "mlflow-env", 
+                  "mlflow", "run", "https://github.com/marcy326/mlflow-argo.git"]
+        args: ["--entry-point", "test-inference", "--run-id", "{{inputs.parameters.run_id}}", "--env-manager", "local", "-P", "url={{inputs.parameters.inference_url}}"]
         env:
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.mlflow:5000"
