@@ -3,6 +3,7 @@ import json
 import click
 import mlflow
 import pandas as pd
+from sklearn.metrics import accuracy_score
 
 @click.command()
 @click.option('--url', required=True, help='The inference endpoint URL.')
@@ -19,12 +20,15 @@ def main(url):
         # 推論リクエストを送信
         response = requests.post(url, json=data)
         response_data = response.json()
+        
         predictions = response_data.get('predictions', [])
+        truth = y_test["Survived"].to_csv()
+        accuracy = accuracy_score(truth, predictions)
 
         # レスポンスを表示
         print(f"predictions: {predictions}")
-        print(f"truth: {y_test}")
-
+        print(f"truth: {truth}")
+        print(f"accuracy: {accuracy}")
 
 if __name__ == "__main__":
     main()
