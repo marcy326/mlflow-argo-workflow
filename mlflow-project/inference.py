@@ -22,7 +22,7 @@ def main(url):
         response_data = response.json()
         
         predictions = response_data.get('predictions', [])
-        truth = y_test["Survived"].to_csv()
+        truth = y_test["Survived"].to_list()
         accuracy = accuracy_score(truth, predictions)
 
         # レスポンスを表示
